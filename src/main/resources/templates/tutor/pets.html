@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="pt-BR" th:lang="${#locale.toLanguageTag()}" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabecalho('PetCare360 - Meus pets')}"></head>
+<body>
+	<header th:replace="~{fragmentos :: topbar}"></header>
+	<nav th:replace="~{fragmentos :: navTutor}"></nav>
+
+	<main>
+		<h1 th:text="#{ui.meus.pets}">Meus pets</h1>
+		<p><a th:href="@{/tutor/pets/novo}" th:text="#{ui.cadastrar.outro.pet}">Cadastrar outro pet</a></p>
+
+		<p th:if="${#lists.isEmpty(pets)}" th:text="#{ui.nenhum.pet.cadastrado}">Nenhum pet cadastrado.</p>
+		<table border="1" cellpadding="6" th:if="${!#lists.isEmpty(pets)}">
+			<thead>
+				<tr>
+					<th th:text="#{ui.nome}">Nome</th>
+					<th th:text="#{ui.especie}">Espécie</th>
+					<th th:text="#{ui.raca}">Raça</th>
+					<th th:text="#{ui.idade}">Idade</th>
+					<th th:text="#{ui.peso}">Peso</th>
+					<th th:text="#{ui.coleira}">Coleira</th>
+					<th th:text="#{ui.bateria}">Bateria</th>
+					<th th:text="#{ui.status}">Status</th>
+					<th th:text="#{ui.acoes}">Ações</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="pet : ${pets}">
+					<td th:text="${pet.name()}"></td>
+					<td th:text="${pet.species()}"></td>
+					<td th:text="${pet.breed()}"></td>
+					<td th:text="${pet.age()}"></td>
+					<td th:text="${pet.weight()}"></td>
+					<td th:text="${pet.deviceId()}"></td>
+					<td th:text="${pet.device() != null ? pet.device().battery() : 'Sem leitura'}"></td>
+					<td th:text="${pet.currentStatus()}"></td>
+					<td>
+						<a th:href="@{/tutor/pets/{id}(id=${pet.id()})}" th:text="#{ui.detalhes}">Detalhes</a>
+						<a th:href="@{/tutor/pets/{id}/editar(id=${pet.id()})}" th:text="#{ui.editar}">Editar</a>
+						<form th:action="@{/pets/{id}/remover(id=${pet.id()})}" method="post">
+							<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+							<button type="submit" th:text="#{ui.remover}">Remover</button>
+						</form>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</main>
+</body>
+</html>

@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="pt-BR" th:lang="${#locale.toLanguageTag()}" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabecalho('PetCare360 - Detalhes do pet')}"></head>
+<body>
+	<header th:replace="~{fragmentos :: topbar}"></header>
+	<th:block th:replace="~{fragmentos :: navegacao}"></th:block>
+
+	<main>
+		<h1 th:text="${pet.name}">Pet</h1>
+
+		<p>
+			<a th:if="${isTutor and canEditPet == true}" th:href="@{/tutor/pets/{id}/editar(id=${pet.id})}" th:text="#{ui.editar.pet}">Editar pet</a>
+			<a th:if="${isAdmin}" th:href="@{/admin/pets/{id}/editar(id=${pet.id})}" th:text="#{ui.editar.pet}">Editar pet</a>
+			<a th:if="${isVet and canEditPet == true}" th:href="@{/vet/pets/{id}/editar(id=${pet.id})}" th:text="#{ui.editar.pet}">Editar pet</a>
+		</p>
+
+		<h2 th:text="#{ui.dados.do.pet}">Dados do pet</h2>
+		<table border="1" cellpadding="6">
+			<tbody>
+				<tr>
+					<th th:text="#{ui.id}">ID</th>
+					<td th:text="${pet.id}"></td>
+				</tr>
+				<tr>
+					<th th:text="#{ui.tutor}">Tutor</th>
+					<td th:text="${pet.user.name} + ' - ' + ${pet.user.email}"></td>
+				</tr>
+				<tr>
+					<th th:text="#{ui.especie}">Espécie</th>
+					<td th:text="${pet.species}"></td>
+				</tr>
+				<tr>
+					<th th:text="#{ui.raca}">Raça</th>
+					<td th:text="${pet.breed}"></td>
+				</tr>
+				<tr>
+					<th th:text="#{ui.idade}">Idade</th>
+					<td th:text="${pet.age}"></td>
+				</tr>
+				<tr>
+					<th th:text="#{ui.peso}">Peso</th>
+					<td th:text="${pet.weight}"></td>
+				</tr>
+				<tr>
+					<th th:text="#{ui.ativo}">Ativo</th>
+					<td th:text="${pet.active}"></td>
+				</tr>
+			</tbody>
+		</table>
+
+		<h2 th:text="#{ui.coleira}">Coleira</h2>
+		<p th:if="${pet.device == null}" th:text="#{ui.este.pet.ainda.nao.tem.coleira.vinculada}">Este pet ainda não tem coleira vinculada.</p>
+		<table border="1" cellpadding="6" th:if="${pet.device != null}">
+			<thead>
+				<tr>
+					<th th:text="#{ui.codigo}">Código</th>
+					<th th:text="#{ui.status}">Status</th>
+					<th th:text="#{ui.bateria}">Bateria</th>
+					<th th:text="#{ui.ultimo.contato}">Último contato</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td th:text="${pet.device.deviceCode}"></td>
+					<td th:text="${pet.device.status}"></td>
+					<td th:text="${pet.device.battery}"></td>
+					<td th:text="${pet.device.lastSeen}"></td>
+				</tr>
+			</tbody>
+		</table>
+
+		<h2 th:text="#{ui.ultima.leitura}">Última leitura</h2>
+		<p th:if="${latestReading == null}" th:text="#{ui.nenhuma.leitura.registrada}">Nenhuma leitura registrada.</p>
+		<table border="1" cellpadding="6" th:if="${latestReading != null}">
+			<thead>
+				<tr>
+					<th th:text="#{ui.data}">Data</th>
+					<th th:text="#{ui.temperatura}">Temperatura</th>
+					<th th:text="#{ui.batimentos}">Batimentos</th>
+					<th th:text="#{ui.atividade}">Atividade</th>
+					<th th:text="#{ui.bateria}">Bateria</th>
+					<th th:text="#{ui.status}">Status</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td th:text="${latestReading.timestamp}"></td>
+					<td th:text="${latestReading.temperature}"></td>
+					<td th:text="${latestReading.heartRate}"></td>
+					<td th:text="${latestReading.activityLevel}"></td>
+					<td th:text="${latestReading.battery}"></td>
+					<td th:text="${latestReading.status}"></td>
+				</tr>
+			</tbody>
+		</table>
+
+		<h2 th:text="#{ui.veterinarios.vinculados}">Veterinários vinculados</h2>
+		<p th:if="${#lists.isEmpty(links)}" th:text="#{ui.nenhum.veterinario.vinculado}">Nenhum veterinário vinculado.</p>
+		<table border="1" cellpadding="6" th:if="${!#lists.isEmpty(links)}">
+			<thead>
+				<tr>
+					<th th:text="#{ui.veterinario}">Veterinário</th>
+					<th th:text="#{ui.e.mail}">E-mail</th>
+					<th th:text="#{ui.ativo}">Ativo</th>
+					<th th:text="#{ui.vinculado.em}">Vinculado em</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="link : ${links}">
+					<td th:text="${link.veterinarian.name}"></td>
+					<td th:text="${link.veterinarian.email}"></td>
+					<td th:text="${link.active}"></td>
+					<td th:text="${link.assignedAt}"></td>
+				</tr>
+			</tbody>
+		</table>
+
+		<h2 th:text="#{ui.alertas}">Alertas</h2>
+		<p th:if="${#lists.isEmpty(alerts)}" th:text="#{ui.nenhum.alerta.registrado}">Nenhum alerta registrado.</p>
+		<table border="1" cellpadding="6" th:if="${!#lists.isEmpty(alerts)}">
+			<thead>
+				<tr>
+					<th th:text="#{ui.tipo}">Tipo</th>
+					<th th:text="#{ui.nivel}">Nível</th>
+					<th th:text="#{ui.status}">Status</th>
+					<th th:text="#{ui.mensagem}">Mensagem</th>
+					<th th:text="#{ui.data}">Data</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="alert : ${alerts}">
+					<td th:text="${alert.type}"></td>
+					<td th:text="${alert.level}"></td>
+					<td th:text="${alert.status}"></td>
+					<td th:text="${alert.message}"></td>
+					<td th:text="${alert.createdAt}"></td>
+				</tr>
+			</tbody>
+		</table>
+
+		<h2 th:text="#{ui.historico.recente.da.coleira}">Histórico recente da coleira</h2>
+		<p th:if="${#lists.isEmpty(readings)}" th:text="#{ui.nenhuma.leitura.registrada}">Nenhuma leitura registrada.</p>
+		<table border="1" cellpadding="6" th:if="${!#lists.isEmpty(readings)}">
+			<thead>
+				<tr>
+					<th th:text="#{ui.data}">Data</th>
+					<th th:text="#{ui.temperatura}">Temperatura</th>
+					<th th:text="#{ui.batimentos}">Batimentos</th>
+					<th th:text="#{ui.atividade}">Atividade</th>
+					<th th:text="#{ui.bateria}">Bateria</th>
+					<th th:text="#{ui.status}">Status</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="reading : ${readings}">
+					<td th:text="${reading.timestamp}"></td>
+					<td th:text="${reading.temperature}"></td>
+					<td th:text="${reading.heartRate}"></td>
+					<td th:text="${reading.activityLevel}"></td>
+					<td th:text="${reading.battery}"></td>
+					<td th:text="${reading.status}"></td>
+				</tr>
+			</tbody>
+		</table>
+	</main>
+</body>
+</html>

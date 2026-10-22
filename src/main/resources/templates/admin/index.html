@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="pt-BR" th:lang="${#locale.toLanguageTag()}" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabecalho('PetCare360 - Admin')}"></head>
+<body>
+	<header th:replace="~{fragmentos :: topbar}"></header>
+	<nav th:replace="~{fragmentos :: navAdmin}"></nav>
+
+	<main>
+		<h1 th:text="#{ui.painel.do.administrador}">Painel do administrador</h1>
+		<p th:text="#{ui.resumo.geral.do.sistema}">Resumo geral do sistema.</p>
+
+		<table border="1" cellpadding="6">
+			<thead>
+				<tr>
+					<th th:text="#{ui.usuarios}">Usuários</th>
+					<th th:text="#{ui.pets}">Pets</th>
+					<th th:text="#{ui.pets.ativos}">Pets ativos</th>
+					<th th:text="#{ui.vinculos}">Vínculos</th>
+					<th th:text="#{ui.mensagens}">Mensagens</th>
+					<th th:text="#{ui.consultas}">Consultas</th>
+					<th th:text="#{ui.recomendacoes}">Recomendações</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td th:text="${userCount}"></td>
+					<td th:text="${petCount}"></td>
+					<td th:text="${activePetCount}"></td>
+					<td th:text="${linkCount}"></td>
+					<td th:text="${messageCount}"></td>
+					<td th:text="${appointmentCount}"></td>
+					<td th:text="${recommendationCount}"></td>
+				</tr>
+			</tbody>
+		</table>
+
+		<h2 th:text="#{ui.acoes.rapidas}">Ações rápidas</h2>
+		<ul>
+			<li><a th:href="@{/admin/usuarios}" th:text="#{ui.usuarios.cadastrados}">Usuários cadastrados</a></li>
+			<li><a th:href="@{/admin/pets}" th:text="#{ui.pets.e.tutores}">Pets e tutores</a></li>
+			<li><a th:href="@{/admin/vinculos}" th:text="#{ui.vinculos.entre.pets.e.veterinarios}">Vínculos entre pets e veterinários</a></li>
+			<li><a th:href="@{/admin/mensagens}" th:text="#{ui.mensagens.do.sistema}">Mensagens do sistema</a></li>
+			<li><a th:href="@{/admin/consultas}" th:text="#{ui.consultas.do.sistema}">Consultas do sistema</a></li>
+			<li><a th:href="@{/admin/recomendacoes}" th:text="#{ui.recomendacoes.do.sistema}">Recomendações do sistema</a></li>
+		</ul>
+	</main>
+</body>
+</html>

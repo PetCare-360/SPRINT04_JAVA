@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="pt-BR" th:lang="${#locale.toLanguageTag()}" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabecalho('PetCare360 - Mensagens')}"></head>
+<body>
+	<header th:replace="~{fragmentos :: topbar}"></header>
+	<nav th:replace="~{fragmentos :: navTutor}"></nav>
+
+	<main>
+		<h1 th:text="#{ui.mensagens}">Mensagens</h1>
+		<p th:if="${#lists.isEmpty(linkedVeterinarians)}" th:text="#{ui.conecte.um.veterinario.ao.pet.antes.de.enviar.mensagens}">Conecte um veterinário ao pet antes de enviar mensagens.</p>
+
+		<form th:action="@{/messages/form}" method="post" th:if="${!#lists.isEmpty(linkedVeterinarians)}">
+			<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+			<p>
+				<label for="conversationKey" th:text="#{ui.pet.e.veterinario}">Pet e veterinário</label><br>
+				<select id="conversationKey" name="conversationKey" required>
+					<option value="" th:text="#{ui.option.selecione}">Selecione</option>
+					<option th:each="link : ${linkedVeterinarians}"
+							th:value="${link.pet.id} + ':' + ${link.veterinarian.id}"
+							th:text="${link.pet.name} + ' com ' + ${link.veterinarian.name}"></option>
+				</select>
+			</p>
+			<p><input type="text" name="subject" placeholder="Assunto" th:placeholder="#{ui.assunto}" maxlength="120" required></p>
+			<p><textarea name="message" placeholder="Mensagem" th:placeholder="#{ui.mensagem}" maxlength="1000" required></textarea></p>
+			<button type="submit" th:text="#{ui.enviar.mensagem}">Enviar mensagem</button>
+		</form>
+
+		<h2 th:text="#{ui.historico}">Histórico</h2>
+		<p th:if="${#lists.isEmpty(messages)}" th:text="#{ui.nenhuma.mensagem}">Nenhuma mensagem.</p>
+		<table border="1" cellpadding="6" th:if="${!#lists.isEmpty(messages)}">
+			<thead>
+				<tr>
+					<th th:text="#{ui.pet}">Pet</th>
+					<th th:text="#{ui.de.para}">De/Para</th>
+					<th th:text="#{ui.assunto}">Assunto</th>
+					<th th:text="#{ui.mensagem}">Mensagem</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="item : ${messages}">
+					<td th:text="${item.petName()}"></td>
+					<td th:text="${item.senderName()} + ' para ' + ${item.receiverName()}"></td>
+					<td th:text="${item.subject()}"></td>
+					<td th:text="${item.message()}"></td>
+				</tr>
+			</tbody>
+		</table>
+	</main>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="pt-BR" th:lang="${#locale.toLanguageTag()}" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="cabecalho(titulo)">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title th:text="${titulo}">PetCare360</title>
+	<link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+	<header th:fragment="topbar">
+		<div>
+			<strong>PetCare360</strong>
+			<span th:text="#{app.subtitle}">Atendimento e monitoramento</span>
+		</div>
+		<div class="header-actions">
+			<form th:replace="~{fragmentos :: languageSwitch}"></form>
+			<form th:action="@{/logout}" method="post">
+				<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+				<button type="submit" th:text="#{nav.logout}">Sair</button>
+			</form>
+		</div>
+	</header>
+
+	<form th:fragment="languageSwitch" class="language-switch" th:action="@{/language}" method="post" th:attr="aria-label=#{ui.language}">
+		<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+		<button type="submit" name="lang" value="pt-BR" th:attr="aria-pressed=${#locale.language == 'pt'}" title="Português">PT</button>
+		<button type="submit" name="lang" value="en" th:attr="aria-pressed=${#locale.language == 'en'}" title="English">EN</button>
+	</form>
+
+	<th:block th:fragment="navegacao">
+		<th:block th:if="${isAdmin}">
+			<nav th:replace="~{fragmentos :: navAdmin}"></nav>
+		</th:block>
+		<th:block th:if="${!isAdmin and isVet}">
+			<nav th:replace="~{fragmentos :: navVet}"></nav>
+		</th:block>
+		<th:block th:if="${!isAdmin and !isVet and isTutor}">
+			<nav th:replace="~{fragmentos :: navTutor}"></nav>
+		</th:block>
+	</th:block>
+
+	<nav th:fragment="navTutor">
+		<a th:href="@{/tutor}" th:text="#{nav.home}">Início</a> |
+		<a th:href="@{/tutor/pets}" th:text="#{nav.pets}">Meus pets</a> |
+		<a th:href="@{/tutor/pets/novo}" th:text="#{nav.addPet}">Cadastrar pet</a> |
+		<a th:href="@{/tutor/veterinarios}" th:text="#{nav.veterinarians}">Veterinários</a> |
+		<a th:href="@{/tutor/mensagens}" th:text="#{nav.messages}">Mensagens</a> |
+		<a th:href="@{/tutor/consultas}" th:text="#{nav.appointments}">Consultas</a> |
+		<a th:href="@{/tutor/recomendacoes}" th:text="#{nav.recommendations}">Recomendações</a>
+		<hr>
+	</nav>
+
+	<nav th:fragment="navVet">
+		<a th:href="@{/vet}" th:text="#{nav.home}">Início</a> |
+		<a th:href="@{/vet/pets}" th:text="#{nav.linkedPets}">Pets vinculados</a> |
+		<a th:href="@{/vet/mensagens}" th:text="#{nav.messages}">Mensagens</a> |
+		<a th:href="@{/vet/consultas}" th:text="#{nav.appointments}">Consultas</a> |
+		<a th:href="@{/vet/recomendacoes}" th:text="#{nav.recommendations}">Recomendações</a>
+		<hr>
+	</nav>
+
+	<nav th:fragment="navAdmin">
+		<a th:href="@{/admin}" th:text="#{nav.home}">Início</a> |
+		<a th:href="@{/admin/usuarios}" th:text="#{nav.users}">Usuários</a> |
+		<a th:href="@{/admin/pets}" th:text="#{nav.allPets}">Pets</a> |
+		<a th:href="@{/admin/vinculos}" th:text="#{nav.links}">Vínculos</a> |
+		<a th:href="@{/admin/mensagens}" th:text="#{nav.messages}">Mensagens</a> |
+		<a th:href="@{/admin/consultas}" th:text="#{nav.appointments}">Consultas</a> |
+		<a th:href="@{/admin/recomendacoes}" th:text="#{nav.recommendations}">Recomendações</a>
+		<hr>
+	</nav>
+</body>
+</html>

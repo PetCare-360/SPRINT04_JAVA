@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="pt-BR" th:lang="${#locale.toLanguageTag()}" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabecalho('PetCare360 - Usuários')}"></head>
+<body>
+	<header th:replace="~{fragmentos :: topbar}"></header>
+	<nav th:replace="~{fragmentos :: navAdmin}"></nav>
+
+	<main>
+		<h1 th:text="#{ui.usuarios}">Usuários</h1>
+		<form method="get" th:action="@{/admin/usuarios}">
+			<label for="role" th:text="#{ui.filtrar.por.perfil}">Filtrar por perfil</label>
+			<select id="role" name="role">
+				<option value="" th:selected="${selectedRole == null || selectedRole == ''}" th:text="#{ui.option.todos}">Todos</option>
+				<option value="ROLE_CLIENTE" th:selected="${selectedRole == 'ROLE_CLIENTE'}" th:text="#{ui.option.tutor}">Tutor</option>
+				<option value="ROLE_VETERINARIO" th:selected="${selectedRole == 'ROLE_VETERINARIO'}" th:text="#{ui.option.veterinrio}">Veterinário</option>
+				<option value="ROLE_ADMIN" th:selected="${selectedRole == 'ROLE_ADMIN'}" th:text="#{ui.option.administrador}">Administrador</option>
+			</select>
+			<button type="submit" th:text="#{ui.filtrar}">Filtrar</button>
+		</form>
+
+		<p th:if="${#lists.isEmpty(users)}" th:text="#{ui.nenhum.usuario.cadastrado}">Nenhum usuário cadastrado.</p>
+		<table border="1" cellpadding="6" th:if="${!#lists.isEmpty(users)}">
+			<thead>
+				<tr>
+					<th th:text="#{ui.id}">ID</th>
+					<th th:text="#{ui.nome}">Nome</th>
+					<th th:text="#{ui.e.mail}">E-mail</th>
+					<th th:text="#{ui.perfis}">Perfis</th>
+					<th th:text="#{ui.ativo}">Ativo</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="user : ${users}">
+					<td th:text="${user.id}"></td>
+					<td th:text="${user.name}"></td>
+					<td th:text="${user.email}"></td>
+					<td>
+						<span th:each="role : ${user.roles}" th:text="${role.name} + ' '"></span>
+					</td>
+					<td th:text="${user.enabled}"></td>
+				</tr>
+			</tbody>
+		</table>
+	</main>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="pt-BR" th:lang="${#locale.toLanguageTag()}" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabecalho('PetCare360 - Veterinário')}"></head>
+<body>
+	<header th:replace="~{fragmentos :: topbar}"></header>
+	<nav th:replace="~{fragmentos :: navVet}"></nav>
+
+	<main>
+		<h1 th:text="#{ui.painel.do.veterinario}">Painel do veterinário</h1>
+		<p th:text="#{ui.resumo.da.sua.area}">Resumo da sua área.</p>
+
+		<table border="1" cellpadding="6">
+			<thead>
+				<tr>
+					<th th:text="#{ui.pets.vinculados}">Pets vinculados</th>
+					<th th:text="#{ui.mensagens}">Mensagens</th>
+					<th th:text="#{ui.consultas}">Consultas</th>
+					<th th:text="#{ui.recomendacoes}">Recomendações</th>
+					<th th:text="#{ui.alertas}">Alertas</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td th:text="${linkedPetCount}"></td>
+					<td th:text="${messageCount}"></td>
+					<td th:text="${appointmentCount}"></td>
+					<td th:text="${recommendationCount}"></td>
+					<td th:text="${alertCount}"></td>
+				</tr>
+			</tbody>
+		</table>
+
+		<h2 th:text="#{ui.acoes.rapidas}">Ações rápidas</h2>
+		<ul>
+			<li><a th:href="@{/vet/pets}" th:text="#{ui.ver.pets.vinculados}">Ver pets vinculados</a></li>
+			<li><a th:href="@{/vet/mensagens}" th:text="#{ui.responder.mensagens}">Responder mensagens</a></li>
+			<li><a th:href="@{/vet/consultas}" th:text="#{ui.ver.consultas}">Ver consultas</a></li>
+			<li><a th:href="@{/vet/recomendacoes}" th:text="#{ui.enviar.recomendacoes}">Enviar recomendações</a></li>
+		</ul>
+	</main>
+</body>
+</html>

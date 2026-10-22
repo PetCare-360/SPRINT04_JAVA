@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="pt-BR" th:lang="${#locale.toLanguageTag()}" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabecalho('PetCare360 - Recomendações')}"></head>
+<body>
+	<header th:replace="~{fragmentos :: topbar}"></header>
+	<nav th:replace="~{fragmentos :: navAdmin}"></nav>
+
+	<main>
+		<h1 th:text="#{ui.recomendacoes}">Recomendações</h1>
+		<h2 th:text="#{ui.historico.geral}">Histórico geral</h2>
+		<p th:if="${#lists.isEmpty(recommendations)}" th:text="#{ui.nenhuma.recomendacao}">Nenhuma recomendação.</p>
+		<table border="1" cellpadding="6" th:if="${!#lists.isEmpty(recommendations)}">
+			<thead>
+				<tr>
+					<th th:text="#{ui.pet}">Pet</th>
+					<th th:text="#{ui.tutor}">Tutor</th>
+					<th th:text="#{ui.veterinario}">Veterinário</th>
+					<th th:text="#{ui.titulo}">Título</th>
+					<th th:text="#{ui.prioridade}">Prioridade</th>
+					<th th:text="#{ui.orientacao}">Orientação</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="item : ${recommendations}">
+					<td th:text="${item.petName()}"></td>
+					<td th:text="${item.tutorName()}"></td>
+					<td th:text="${item.veterinarianName()}"></td>
+					<td th:text="${item.title()}"></td>
+					<td th:text="${item.priority()}"></td>
+					<td th:text="${item.instructions()}"></td>
+				</tr>
+			</tbody>
+		</table>
+	</main>
+</body>
+</html>

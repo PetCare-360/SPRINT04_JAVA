@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="pt-BR" th:lang="${#locale.toLanguageTag()}" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabecalho('PetCare360 - Pets vinculados')}"></head>
+<body>
+	<header th:replace="~{fragmentos :: topbar}"></header>
+	<nav th:replace="~{fragmentos :: navVet}"></nav>
+
+	<main>
+		<h1 th:text="#{ui.pets.vinculados}">Pets vinculados</h1>
+		<p th:if="${#lists.isEmpty(linkedPets)}" th:text="#{ui.nenhum.pet.vinculado}">Nenhum pet vinculado.</p>
+		<table border="1" cellpadding="6" th:if="${!#lists.isEmpty(linkedPets)}">
+			<thead>
+				<tr>
+					<th th:text="#{ui.pet}">Pet</th>
+					<th th:text="#{ui.especie}">Espécie</th>
+					<th th:text="#{ui.raca}">Raça</th>
+					<th th:text="#{ui.idade}">Idade</th>
+					<th th:text="#{ui.peso}">Peso</th>
+					<th th:text="#{ui.tutor}">Tutor</th>
+					<th th:text="#{ui.e.mail.do.tutor}">E-mail do tutor</th>
+					<th th:text="#{ui.vinculado.em}">Vinculado em</th>
+					<th th:text="#{ui.acoes}">Ações</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="link : ${linkedPets}">
+					<td th:text="${link.pet.name}"></td>
+					<td th:text="${link.pet.species}"></td>
+					<td th:text="${link.pet.breed}"></td>
+					<td th:text="${link.pet.age}"></td>
+					<td th:text="${link.pet.weight}"></td>
+					<td th:text="${link.pet.user.name}"></td>
+					<td th:text="${link.pet.user.email}"></td>
+					<td th:text="${link.assignedAt}"></td>
+					<td>
+						<a th:href="@{/vet/pets/{id}(id=${link.pet.id})}" th:text="#{ui.detalhes}">Detalhes</a>
+						<a th:href="@{/vet/pets/{id}/editar(id=${link.pet.id})}" th:text="#{ui.editar}">Editar</a>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</main>
+</body>
+</html>

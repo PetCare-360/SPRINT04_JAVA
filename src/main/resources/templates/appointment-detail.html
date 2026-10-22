@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="pt-BR" th:lang="${#locale.toLanguageTag()}" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabecalho('PetCare360 - Detalhes da consulta')}"></head>
+<body>
+	<header th:replace="~{fragmentos :: topbar}"></header>
+	<th:block th:replace="~{fragmentos :: navegacao}"></th:block>
+	<main th:with="area=${isAdmin ? 'admin' : (isVet ? 'vet' : 'tutor')}">
+		<h1 th:text="#{ui.detalhes.da.consulta}">Detalhes da consulta</h1>
+		<dl>
+			<dt th:text="#{ui.pet}">Pet</dt><dd th:text="${appointment.pet.name}"></dd>
+			<dt th:text="#{ui.tutor}">Tutor</dt><dd th:text="${appointment.tutor.name}"></dd>
+			<dt th:text="#{ui.e.mail.do.tutor}">E-mail do tutor</dt><dd th:text="${appointment.tutor.email}"></dd>
+			<dt th:text="#{ui.veterinario}">Veterinário</dt><dd th:text="${appointment.veterinarian.name}"></dd>
+			<dt th:text="#{ui.veterinarian.email}">E-mail do veterinário</dt><dd th:text="${appointment.veterinarian.email}"></dd>
+			<dt th:text="#{ui.data.e.hora}">Data e hora</dt><dd th:text="${#temporals.format(appointment.scheduledAt, 'dd/MM/yyyy HH:mm')}"></dd>
+			<dt th:text="#{ui.status}">Status</dt><dd th:text="${#messages.msg('appointment.status.' + appointment.status.name())}"></dd>
+			<dt th:text="#{ui.motivo}">Motivo</dt><dd th:text="${appointment.reason}"></dd>
+		</dl>
+		<p><a th:href="@{/{area}/pets/{id}(area=${area},id=${appointment.pet.id})}" th:text="#{ui.ver.detalhes.do.pet}">Ver detalhes do pet</a></p>
+		<p th:if="${canEditPet == true}">
+			<a th:href="@{/{area}/pets/{id}/editar(area=${area},id=${appointment.pet.id})}" th:text="#{ui.editar.pet}">Editar pet</a>
+		</p>
+		<section th:if="${consultationPet != null}">
+			<h2 th:text="#{ui.dados.do.pet}">Dados do pet</h2>
+			<dl>
+				<dt th:text="#{ui.especie}">Espécie</dt><dd th:text="${consultationPet.species}"></dd>
+				<dt th:text="#{ui.raca}">Raça</dt><dd th:text="${consultationPet.breed}"></dd>
+				<dt th:text="#{ui.idade}">Idade</dt><dd th:text="${consultationPet.age}"></dd>
+				<dt th:text="#{ui.peso}">Peso</dt><dd th:text="${consultationPet.weight}"></dd>
+			</dl>
+			<h2 th:text="#{ui.ultima.leitura}">Última leitura</h2>
+			<p th:if="${consultationReading == null}" th:text="#{ui.nenhuma.leitura.registrada}">Nenhuma leitura registrada.</p>
+			<dl th:if="${consultationReading != null}">
+				<dt th:text="#{ui.data}">Data</dt><dd th:text="${consultationReading.timestamp}"></dd>
+				<dt th:text="#{ui.temperatura}">Temperatura</dt><dd th:text="${consultationReading.temperature}"></dd>
+				<dt th:text="#{ui.batimentos}">Batimentos</dt><dd th:text="${consultationReading.heartRate}"></dd>
+				<dt th:text="#{ui.atividade}">Atividade</dt><dd th:text="${consultationReading.activityLevel}"></dd>
+			</dl>
+			<h2 th:text="#{ui.alertas}">Alertas</h2>
+			<p th:if="${consultationAlerts == null or #lists.isEmpty(consultationAlerts)}" th:text="#{ui.nenhum.alerta.registrado}">Nenhum alerta registrado.</p>
+			<ul th:if="${consultationAlerts != null and !#lists.isEmpty(consultationAlerts)}">
+				<li th:each="alert : ${consultationAlerts}" th:text="${alert.message + ' (' + alert.status + ')'}"></li>
+			</ul>
+		</section>
+		<p th:if="${appointment.status.name() != 'DONE' and appointment.status.name() != 'CANCELED'}">
+			<a th:href="@{/{area}/consultas/{id}/editar(area=${area},id=${appointment.id})}" th:text="#{ui.editar.consulta}">Editar consulta</a>
+		</p>
+		<form th:if="${(isAdmin or isVet) and appointment.status.name() == 'REQUESTED'}"
+				th:action="@{/appointments/{id}/confirmar(id=${appointment.id})}" method="post">
+			<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+			<button type="submit" th:text="#{ui.confirmar.consulta}">Confirmar consulta</button>
+		</form>
+		<form th:if="${(isAdmin or isVet) and appointment.status.name() == 'CONFIRMED'}"
+				th:action="@{/appointments/{id}/finalizar(id=${appointment.id})}" method="post">
+			<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+			<button type="submit" th:text="#{ui.finalizar.consulta}">Finalizar consulta</button>
+		</form>
+		<form th:if="${appointment.status.name() == 'REQUESTED' or appointment.status.name() == 'CONFIRMED'}"
+				th:action="@{/appointments/{id}/cancelar(id=${appointment.id})}" method="post">
+			<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+			<button type="submit" th:text="#{ui.cancelar.consulta}">Cancelar consulta</button>
+		</form>
+		<p><a th:href="@{/{area}/consultas(area=${area})}" th:text="#{ui.voltar.para.consultas}">Voltar para consultas</a></p>
+	</main>
+</body>
+</html>

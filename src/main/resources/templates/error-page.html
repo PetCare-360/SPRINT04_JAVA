@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="pt-BR" th:lang="${#locale.toLanguageTag()}" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabecalho('PetCare360 - Erro')}"></head>
+<body class="auth-page">
+	<main class="login-panel" role="alert">
+		<h1 th:text="#{ui.error.title}">Não foi possível concluir</h1>
+		<p th:text="${errorMessage}">Tente novamente.</p>
+		<p><small th:text="${statusCode}">400</small></p>
+		<p><a th:href="@{/dashboard}" th:text="#{ui.error.back}">Voltar ao painel</a></p>
+	</main>
+</body>
+</html>

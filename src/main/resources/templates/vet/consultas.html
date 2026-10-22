@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="pt-BR" th:lang="${#locale.toLanguageTag()}" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabecalho('PetCare360 - Consultas do veterinário')}"></head>
+<body>
+	<header th:replace="~{fragmentos :: topbar}"></header>
+	<nav th:replace="~{fragmentos :: navVet}"></nav>
+
+	<main>
+		<h1 th:text="#{ui.consultas}">Consultas</h1>
+		<form method="get" th:action="@{/vet/consultas}">
+			<label for="status" th:text="#{ui.filtrar.por.status}">Filtrar por status</label>
+			<select id="status" name="status">
+				<option value="" th:selected="${selectedStatus == null || selectedStatus == ''}" th:text="#{ui.option.todos}">Todos</option>
+				<option value="REQUESTED" th:selected="${selectedStatus == 'REQUESTED'}" th:text="#{ui.option.solicitada}">Solicitada</option>
+				<option value="CONFIRMED" th:selected="${selectedStatus == 'CONFIRMED'}" th:text="#{ui.option.confirmada}">Confirmada</option>
+				<option value="CANCELED" th:selected="${selectedStatus == 'CANCELED'}" th:text="#{ui.option.cancelada}">Cancelada</option>
+				<option value="DONE" th:selected="${selectedStatus == 'DONE'}" th:text="#{ui.option.concluda}">Concluída</option>
+			</select>
+			<button type="submit" th:text="#{ui.filtrar}">Filtrar</button>
+		</form>
+
+		<p th:if="${#lists.isEmpty(appointments)}" th:text="#{ui.nenhuma.consulta}">Nenhuma consulta.</p>
+		<table border="1" cellpadding="6" th:if="${!#lists.isEmpty(appointments)}">
+			<thead>
+				<tr>
+					<th th:text="#{ui.pet}">Pet</th>
+					<th th:text="#{ui.tutor}">Tutor</th>
+					<th th:text="#{ui.data}">Data</th>
+					<th th:text="#{ui.status}">Status</th>
+					<th th:text="#{ui.motivo}">Motivo</th>
+					<th th:text="#{ui.acoes}">Ações</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="item : ${appointments}">
+					<td th:text="${item.petName()}"></td>
+					<td th:text="${item.tutorName()}"></td>
+					<td th:text="${item.scheduledAt()}"></td>
+					<td th:text="${#messages.msg('appointment.status.' + item.status().name())}"></td>
+					<td th:text="${item.reason()}"></td>
+					<td>
+						<p><a th:href="@{/vet/consultas/{id}(id=${item.id()})}" th:text="#{ui.ver.detalhes}">Ver detalhes</a></p>
+						<p th:if="${item.status().name() != 'DONE' and item.status().name() != 'CANCELED'}"><a th:href="@{/vet/consultas/{id}/editar(id=${item.id()})}" th:text="#{ui.editar}">Editar</a></p>
+						<form th:if="${item.status().name() == 'REQUESTED'}" th:action="@{/appointments/{id}/confirmar(id=${item.id()})}" method="post">
+							<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+							<button type="submit" th:text="#{ui.confirmar.consulta}">Confirmar consulta</button>
+						</form>
+						<form th:if="${item.status().name() == 'CONFIRMED'}" th:action="@{/appointments/{id}/finalizar(id=${item.id()})}" method="post">
+							<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+							<button type="submit" th:text="#{ui.finalizar}">Finalizar</button>
+						</form>
+						<form th:if="${item.status().name() == 'REQUESTED' or item.status().name() == 'CONFIRMED'}" th:action="@{/appointments/{id}/cancelar(id=${item.id()})}" method="post">
+							<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+							<button type="submit" th:text="#{ui.cancelar.consulta}">Cancelar consulta</button>
+						</form>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</main>
+</body>
+</html>

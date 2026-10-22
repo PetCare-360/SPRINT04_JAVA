@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="pt-BR" th:lang="${#locale.toLanguageTag()}" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabecalho('PetCare360 - Veterinários')}"></head>
+<body>
+	<header th:replace="~{fragmentos :: topbar}"></header>
+	<nav th:replace="~{fragmentos :: navTutor}"></nav>
+
+	<main>
+		<h1 th:text="#{ui.veterinarios}">Veterinários</h1>
+		<p th:text="#{ui.conecte.um.pet.a.um.veterinario.para.liberar.mensagens.consultas.e.recomendacoes}">Conecte um pet a um veterinário para liberar mensagens, consultas e recomendações.</p>
+
+		<form th:action="@{/veterinarians/link/form}" method="post">
+			<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+			<p>
+				<label for="linkPet" th:text="#{ui.pet}">Pet</label><br>
+				<select id="linkPet" name="petId" required>
+					<option value="" th:text="#{ui.option.selecione}">Selecione</option>
+					<option th:each="pet : ${pets}" th:value="${pet.id()}" th:text="${pet.name()} + ' - ' + ${pet.species()}"></option>
+				</select>
+			</p>
+			<p>
+				<label for="linkVet" th:text="#{ui.veterinario}">Veterinário</label><br>
+				<select id="linkVet" name="veterinarianId" required>
+					<option value="" th:text="#{ui.option.selecione}">Selecione</option>
+					<option th:each="vet : ${veterinarians}" th:value="${vet.id}" th:text="${vet.name} + ' - ' + ${vet.email}"></option>
+				</select>
+			</p>
+			<button type="submit" th:text="#{ui.conectar.veterinario}">Conectar veterinário</button>
+		</form>
+
+		<h2 th:text="#{ui.conexoes.ativas}">Conexões ativas</h2>
+		<p th:if="${#lists.isEmpty(linkedVeterinarians)}" th:text="#{ui.nenhum.veterinario.vinculado}">Nenhum veterinário vinculado.</p>
+		<table border="1" cellpadding="6" th:if="${!#lists.isEmpty(linkedVeterinarians)}">
+			<thead>
+				<tr>
+					<th th:text="#{ui.pet}">Pet</th>
+					<th th:text="#{ui.veterinario}">Veterinário</th>
+					<th th:text="#{ui.data}">Data</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="link : ${linkedVeterinarians}">
+					<td th:text="${link.pet.name}"></td>
+					<td th:text="${link.veterinarian.name} + ' - ' + ${link.veterinarian.email}"></td>
+					<td th:text="${link.assignedAt}"></td>
+				</tr>
+			</tbody>
+		</table>
+	</main>
+</body>
+</html>

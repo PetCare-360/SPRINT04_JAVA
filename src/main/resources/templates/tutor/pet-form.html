@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="pt-BR" th:lang="${#locale.toLanguageTag()}" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabecalho('PetCare360 - Cadastrar pet')}"></head>
+<body>
+	<header th:replace="~{fragmentos :: topbar}"></header>
+	<nav th:replace="~{fragmentos :: navTutor}"></nav>
+
+	<main>
+		<h1 th:text="#{ui.cadastrar.pet}">Cadastrar pet</h1>
+		<form th:action="@{/pets/form}" method="post">
+			<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+			<table cellpadding="6">
+				<tr>
+					<td><label for="name" th:text="#{ui.nome.do.pet}">Nome do pet</label></td>
+					<td><input id="name" type="text" name="name" maxlength="120" required></td>
+					<td th:text="#{ui.nome.que.vai.aparecer.nas.consultas.e.mensagens}">Nome que vai aparecer nas consultas e mensagens.</td>
+				</tr>
+				<tr>
+					<td><label for="age" th:text="#{ui.idade}">Idade</label></td>
+					<td><input id="age" type="number" name="age" min="0" max="40" required></td>
+					<td th:text="#{ui.informe.a.idade.em.anos}">Informe a idade em anos.</td>
+				</tr>
+				<tr>
+					<td><label for="weight" th:text="#{ui.peso}">Peso</label></td>
+					<td><input id="weight" type="number" name="weight" min="0.10" max="200" step="0.01" required></td>
+					<td th:text="#{ui.use.ponto.para.casas.decimais}">Use ponto para casas decimais.</td>
+				</tr>
+				<tr>
+					<td><label for="breed" th:text="#{ui.raca}">Raça</label></td>
+					<td><input id="breed" type="text" name="breed" maxlength="120" required></td>
+					<td th:text="#{ui.se.nao.souber.coloque.sem.raca.definida}">Se não souber, coloque sem raça definida.</td>
+				</tr>
+				<tr>
+					<td><label for="species" th:text="#{ui.especie}">Espécie</label></td>
+					<td>
+						<select id="species" name="species" required>
+							<option value="DOG" th:text="#{ui.option.cachorro}">Cachorro</option>
+							<option value="CAT" th:text="#{ui.option.gato}">Gato</option>
+							<option value="OTHER" th:text="#{ui.option.outro}">Outro</option>
+						</select>
+					</td>
+					<td th:text="#{ui.categoria.usada.nos.relatorios}">Categoria usada nos relatórios.</td>
+				</tr>
+				<tr>
+					<td><label for="deviceId" th:text="#{ui.codigo.da.coleira}">Código da coleira</label></td>
+					<td><input id="deviceId" type="text" name="deviceId" maxlength="80" required></td>
+					<td th:text="#{ui.deve.ser.unico.para.cada.pet}">Deve ser único para cada pet.</td>
+				</tr>
+				<tr>
+					<td><label for="temperature" th:text="#{ui.temperatura}">Temperatura</label></td>
+					<td><input id="temperature" type="number" name="temperature" min="30" max="45" step="0.1" required></td>
+					<td th:text="#{ui.valor.inicial.entre.30.e.45}">Valor inicial entre 30 e 45.</td>
+				</tr>
+				<tr>
+					<td><label for="heartRate" th:text="#{ui.batimentos}">Batimentos</label></td>
+					<td><input id="heartRate" type="number" name="heartRate" min="40" max="220" required></td>
+					<td th:text="#{ui.frequencia.cardiaca.inicial}">Frequência cardíaca inicial.</td>
+				</tr>
+				<tr>
+					<td><label for="activityLevel" th:text="#{ui.nivel.de.atividade}">Nível de atividade</label></td>
+					<td><input id="activityLevel" type="number" name="activityLevel" min="0" max="100" required></td>
+					<td th:text="#{ui.percentual.de.atividade.de.0.a.100}">Percentual de atividade, de 0 a 100.</td>
+				</tr>
+				<tr>
+					<td><label for="battery" th:text="#{ui.bateria.da.coleira}">Bateria da coleira</label></td>
+					<td><input id="battery" type="number" name="battery" min="0" max="100" required></td>
+					<td th:text="#{ui.percentual.de.bateria.de.0.a.100}">Percentual de bateria, de 0 a 100.</td>
+				</tr>
+				<tr><td><label for="latitude" th:text="#{ui.latitude}">Latitude</label></td><td><input id="latitude" type="number" name="latitude" min="-90" max="90" step="0.0000001" required></td><td th:text="#{ui.localizacao.da.primeira.leitura}">Localização da primeira leitura.</td></tr>
+				<tr><td><label for="longitude" th:text="#{ui.longitude}">Longitude</label></td><td><input id="longitude" type="number" name="longitude" min="-180" max="180" step="0.0000001" required></td><td th:text="#{ui.localizacao.da.primeira.leitura}">Localização da primeira leitura.</td></tr>
+			</table>
+			<button type="submit" th:text="#{ui.cadastrar.pet}">Cadastrar pet</button>
+		</form>
+	</main>
+</body>
+</html>

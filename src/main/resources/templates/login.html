@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="pt-BR" th:lang="${#locale.toLanguageTag()}" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabecalho('PetCare360 - Login')}"></head>
+<body class="auth-page">
+	<main class="login-panel">
+		<form th:replace="~{fragmentos :: languageSwitch}"></form>
+		<h1 th:text="#{ui.petcare360}">PetCare360</h1>
+		<p th:text="#{auth.login.intro}">Entre para acompanhar pets, alertas e atendimento veterinário.</p>
+
+		<form th:action="@{/login}" method="post" class="form-stack">
+			<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+			<label>
+				<span th:text="#{auth.login.email}">E-mail</span>
+				<input type="email" name="username" required autocomplete="username">
+			</label>
+			<label>
+				<span th:text="#{auth.login.password}">Senha</span>
+				<input type="password" name="password" required autocomplete="current-password">
+			</label>
+			<button type="submit" th:text="#{auth.login.submit}">Entrar</button>
+		</form>
+
+		<p class="feedback" th:if="${param.error}" th:text="#{auth.login.invalid}">E-mail ou senha inválidos.</p>
+		<p class="feedback" th:if="${param.logout}" th:text="#{auth.login.logout}">Sessão encerrada.</p>
+		<p class="feedback" th:if="${param.registered}" th:text="#{auth.login.registered}">Conta criada. Faça login para continuar.</p>
+		<p><a th:href="@{/register}" th:text="#{auth.login.create}">Criar conta como tutor ou veterinário</a></p>
+	</main>
+</body>
+</html>
