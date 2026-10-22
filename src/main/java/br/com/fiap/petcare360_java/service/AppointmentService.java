@@ -2,7 +2,10 @@ package br.com.fiap.petcare360_java.service;
 
 import java.util.List;
 import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +18,7 @@ import br.com.fiap.petcare360_java.model.Appointment;
 import br.com.fiap.petcare360_java.model.AppointmentStatusEnum;
 import br.com.fiap.petcare360_java.model.Pet;
 import br.com.fiap.petcare360_java.repository.AppointmentRepository;
+import br.com.fiap.petcare360_java.repository.AppUserRepository;
 import br.com.fiap.petcare360_java.repository.PetVeterinarianRepository;
 import br.com.fiap.petcare360_java.repository.OracleClinicalProcedures;
 
@@ -22,19 +26,45 @@ import br.com.fiap.petcare360_java.repository.OracleClinicalProcedures;
 public class AppointmentService {
 
 	private final AppointmentRepository appointmentRepository;
+	private final AppUserRepository userRepository;
 	private final CurrentUserService currentUserService;
 	private final ClinicalAccessService clinicalAccessService;
 	private final PetVeterinarianRepository petVeterinarianRepository;
 	private final OracleClinicalProcedures procedures;
 
-	public AppointmentService(AppointmentRepository appointmentRepository, CurrentUserService currentUserService,
+	public AppointmentService(AppointmentRepository appointmentRepository, AppUserRepository userRepository,
+			CurrentUserService currentUserService,
 			ClinicalAccessService clinicalAccessService, PetVeterinarianRepository petVeterinarianRepository,
 			OracleClinicalProcedures procedures) {
 		this.appointmentRepository = appointmentRepository;
+		this.userRepository = userRepository;
 		this.currentUserService = currentUserService;
 		this.clinicalAccessService = clinicalAccessService;
 		this.petVeterinarianRepository = petVeterinarianRepository;
 		this.procedures = procedures;
+	}
+
+	@Transactional(readOnly = true)
+	public Page<AppointmentResponse> pageMine(Pageable pageable, AppointmentStatusEnum status) {
+		String email = currentUserService.email();
+		return (status == null ? appointmentRepository.pageVisibleForUser(email, pageable)
+				: appointmentRepository.pageVisibleForUserByStatus(email, status, pageable)).map(this::toResponse);
+	}
+
+	@Transactional(readOnly = true)
+	public Page<AppointmentResponse> pageAll(Pageable pageable, AppointmentStatusEnum status) {
+		return (status == null ? appointmentRepository.pageAllVisible(pageable)
+				: appointmentRepository.pageAllVisibleByStatus(status, pageable)).map(this::toResponse);
+	}
+
+	@Transactional(readOnly = true)
+	public long countMine() {
+		return appointmentRepository.countVisibleForUser(currentUserService.email());
+	}
+
+	@Transactional(readOnly = true)
+	public long countAll() {
+		return appointmentRepository.count();
 	}
 
 	@Transactional(readOnly = true)
@@ -65,6 +95,7 @@ public class AppointmentService {
 		if (!petVeterinarianRepository.existsActiveLink(pet.getId(), veterinarian.getEmail())) {
 			throw new ApiException(HttpStatus.BAD_REQUEST, "O veterinário não está vinculado a este pet");
 		}
+		ensureSlotAvailable(veterinarian.getId(), request.scheduledAt(), null);
 
 		procedures.requestAppointment(pet.getId(), currentUserService.user().getId(),
 				veterinarian.getId(), request.scheduledAt(), request.reason().trim());
@@ -104,6 +135,7 @@ public class AppointmentService {
 		if (!petVeterinarianRepository.existsActiveLink(pet.getId(), veterinarian.getEmail())) {
 			throw new ApiException(HttpStatus.BAD_REQUEST, "O veterinário não está vinculado a este pet");
 		}
+		ensureSlotAvailable(veterinarian.getId(), request.scheduledAt(), id);
 
 		appointment.setPet(pet);
 		appointment.setTutor(pet.getUser());
@@ -121,6 +153,7 @@ public class AppointmentService {
 			throw new ApiException(HttpStatus.CONFLICT, "Apenas consultas solicitadas podem ser confirmadas");
 		}
 		validateFutureDate(appointment.getScheduledAt());
+		ensureSlotAvailable(appointment.getVeterinarian().getId(), appointment.getScheduledAt(), id);
 		appointment.setStatus(AppointmentStatusEnum.CONFIRMED);
 		return toResponse(appointmentRepository.save(appointment));
 	}
@@ -200,6 +233,22 @@ public class AppointmentService {
 		if (scheduledAt == null || !scheduledAt.isAfter(OffsetDateTime.now())) {
 			throw new ApiException(HttpStatus.BAD_REQUEST,
 					"A data da consulta já passou. Escolha uma data e horário futuros.");
+		}
+	}
+
+	private void ensureSlotAvailable(Long veterinarianId, OffsetDateTime scheduledAt, Long excludedId) {
+		userRepository.lockForScheduling(veterinarianId)
+				.orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Veterinário não encontrado"));
+		OffsetDateTime start = scheduledAt.truncatedTo(ChronoUnit.MINUTES);
+		OffsetDateTime end = start.plusMinutes(1);
+		List<AppointmentStatusEnum> active = List.of(AppointmentStatusEnum.REQUESTED,
+				AppointmentStatusEnum.CONFIRMED);
+		long busy = excludedId == null
+				? appointmentRepository.countBusySlot(veterinarianId, active, start, end)
+				: appointmentRepository.countBusySlotExcept(veterinarianId, active, start, end, excludedId);
+		if (busy > 0) {
+			throw new ApiException(HttpStatus.CONFLICT,
+					"O veterinário já possui uma consulta neste horário. Escolha outro horário.");
 		}
 	}
 }

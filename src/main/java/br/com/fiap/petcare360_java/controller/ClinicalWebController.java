@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import br.com.fiap.petcare360_java.service.AppointmentService;
 import br.com.fiap.petcare360_java.service.ClinicalPageService;
 import br.com.fiap.petcare360_java.service.CurrentUserService;
+import br.com.fiap.petcare360_java.service.HealthTrendService;
 import br.com.fiap.petcare360_java.service.PetService;
 
 @Controller
@@ -20,13 +21,16 @@ public class ClinicalWebController {
 	private final AppointmentService appointmentService;
 	private final CurrentUserService currentUserService;
 	private final ClinicalPageService clinicalPageService;
+	private final HealthTrendService healthTrends;
 
 	public ClinicalWebController(PetService petService, AppointmentService appointmentService,
-			CurrentUserService currentUserService, ClinicalPageService clinicalPageService) {
+			CurrentUserService currentUserService, ClinicalPageService clinicalPageService,
+			HealthTrendService healthTrends) {
 		this.petService = petService;
 		this.appointmentService = appointmentService;
 		this.currentUserService = currentUserService;
 		this.clinicalPageService = clinicalPageService;
+		this.healthTrends = healthTrends;
 	}
 
 	@GetMapping({ "/tutor/pets/{id}", "/vet/pets/{id}", "/admin/pets/{id}" })
@@ -35,6 +39,7 @@ public class ClinicalWebController {
 		model.addAttribute("pet", detail.pet());
 		model.addAttribute("latestReading", detail.latestReading());
 		model.addAttribute("readings", detail.readings());
+		model.addAttribute("healthTrend", healthTrends.from(detail.readings(), detail.alerts()));
 		model.addAttribute("alerts", detail.alerts());
 		model.addAttribute("links", detail.links());
 		model.addAttribute("canEditPet", currentUserService.hasRole("ROLE_ADMIN")

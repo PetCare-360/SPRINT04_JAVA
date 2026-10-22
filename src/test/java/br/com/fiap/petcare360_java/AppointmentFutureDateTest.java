@@ -18,6 +18,7 @@ import br.com.fiap.petcare360_java.exception.ApiException;
 import br.com.fiap.petcare360_java.model.AppUser;
 import br.com.fiap.petcare360_java.model.Appointment;
 import br.com.fiap.petcare360_java.repository.AppointmentRepository;
+import br.com.fiap.petcare360_java.repository.AppUserRepository;
 import br.com.fiap.petcare360_java.repository.OracleClinicalProcedures;
 import br.com.fiap.petcare360_java.repository.PetVeterinarianRepository;
 import br.com.fiap.petcare360_java.service.AppointmentService;
@@ -28,7 +29,7 @@ class AppointmentFutureDateTest {
     private final AppointmentRepository appointments = mock(AppointmentRepository.class);
     private final OracleClinicalProcedures procedures = mock(OracleClinicalProcedures.class);
     private final CurrentUserService current = mock(CurrentUserService.class);
-    private final AppointmentService service = new AppointmentService(appointments,
+    private final AppointmentService service = new AppointmentService(appointments, mock(AppUserRepository.class),
             current, mock(ClinicalAccessService.class),
             mock(PetVeterinarianRepository.class), procedures);
 

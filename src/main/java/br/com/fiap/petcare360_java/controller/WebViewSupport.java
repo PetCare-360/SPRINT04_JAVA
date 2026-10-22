@@ -1,11 +1,16 @@
 package br.com.fiap.petcare360_java.controller;
 
-import java.util.List;
+import java.util.function.Function;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.ui.Model;
 
-import br.com.fiap.petcare360_java.dto.AppointmentResponse;
+import br.com.fiap.petcare360_java.exception.ApiException;
+import br.com.fiap.petcare360_java.model.AppointmentStatusEnum;
 import br.com.fiap.petcare360_java.repository.AlertRepository;
 import br.com.fiap.petcare360_java.repository.AppUserRepository;
 import br.com.fiap.petcare360_java.repository.PetRepository;
@@ -18,6 +23,7 @@ import br.com.fiap.petcare360_java.service.RecommendationService;
 
 @Component
 class WebViewSupport {
+	private static final int PAGE_SIZE = 10;
 
 	private final PetService petService;
 	private final MessageService messageService;
@@ -47,13 +53,10 @@ class WebViewSupport {
 	void addTutorData(Model model) {
 		var pets = petService.listAll();
 		var links = linkRepository.findActiveLinksByTutorEmail(currentUserService.email());
-		var messages = messageService.listMine();
-		var appointments = appointmentService.listMine();
-		var recommendations = recommendationService.listMine();
 		model.addAttribute("pets", pets);
 		model.addAttribute("veterinarians", userRepository.findByRolesName("ROLE_VETERINARIO"));
 		model.addAttribute("linkedVeterinarians", links);
-		addCommunicationData(model, messages, appointments, recommendations);
+		addCommunicationCounts(model, false);
 		model.addAttribute("petCount", pets.size());
 		model.addAttribute("linkCount", links.size());
 		model.addAttribute("alertCount", pets.stream().mapToLong(pet -> alertRepository.countByPetId(pet.id())).sum());
@@ -61,11 +64,8 @@ class WebViewSupport {
 
 	void addVetData(Model model) {
 		var links = linkRepository.findActiveLinksByVeterinarianEmail(currentUserService.email());
-		var messages = messageService.listMine();
-		var appointments = appointmentService.listMine();
-		var recommendations = recommendationService.listMine();
 		model.addAttribute("linkedPets", links);
-		addCommunicationData(model, messages, appointments, recommendations);
+		addCommunicationCounts(model, false);
 		model.addAttribute("linkedPetCount", links.size());
 		model.addAttribute("alertCount", links.stream()
 				.mapToLong(link -> alertRepository.countByPetId(link.getPet().getId())).sum());
@@ -75,36 +75,63 @@ class WebViewSupport {
 		var users = userRepository.findAll();
 		var pets = petRepository.findAll();
 		var links = linkRepository.findAll();
-		var messages = messageService.listAll();
-		var appointments = appointmentService.listAll();
-		var recommendations = recommendationService.listAll();
 		model.addAttribute("users", users);
 		model.addAttribute("pets", pets);
 		model.addAttribute("links", links);
 		model.addAttribute("veterinarians", userRepository.findByRolesName("ROLE_VETERINARIO"));
-		addCommunicationData(model, messages, appointments, recommendations);
+		addCommunicationCounts(model, true);
 		model.addAttribute("userCount", users.size());
 		model.addAttribute("petCount", pets.size());
 		model.addAttribute("activePetCount", pets.stream().filter(pet -> Boolean.TRUE.equals(pet.getActive())).count());
 		model.addAttribute("linkCount", links.size());
 	}
 
-	@SuppressWarnings("unchecked")
-	void applyAppointmentFilter(String status, Model model) {
-		if (status == null || status.isBlank()) return;
-		var appointments = (List<AppointmentResponse>) model.getAttribute("appointments");
-		if (appointments != null) {
-			model.addAttribute("appointments", appointments.stream()
-					.filter(item -> item.status().name().equals(status)).toList());
+	void addMessagesPage(Model model, int page, String area) {
+		Page<?> result = fetchPage(page, pageable -> area.equals("admin")
+				? messageService.pageAll(pageable) : messageService.pageMine(pageable));
+		addPage(model, result, "messages", "/" + area + "/mensagens");
+	}
+
+	void addAppointmentsPage(Model model, int page, String area, String statusText) {
+		AppointmentStatusEnum status = parseStatus(statusText);
+		Page<?> result = fetchPage(page, pageable -> area.equals("admin")
+				? appointmentService.pageAll(pageable, status) : appointmentService.pageMine(pageable, status));
+		addPage(model, result, "appointments", "/" + area + "/consultas");
+		model.addAttribute("selectedStatus", status == null ? "" : status.name());
+	}
+
+	void addRecommendationsPage(Model model, int page, String area) {
+		Page<?> result = fetchPage(page, pageable -> area.equals("admin")
+				? recommendationService.pageAll(pageable) : recommendationService.pageMine(pageable));
+		addPage(model, result, "recommendations", "/" + area + "/recomendacoes");
+	}
+
+	private AppointmentStatusEnum parseStatus(String text) {
+		if (text == null || text.isBlank()) return null;
+		try {
+			return AppointmentStatusEnum.valueOf(text);
+		} catch (IllegalArgumentException ex) {
+			throw new ApiException(HttpStatus.BAD_REQUEST, "Status de consulta inválido");
 		}
 	}
 
-	private void addCommunicationData(Model model, List<?> messages, List<?> appointments, List<?> recommendations) {
-		model.addAttribute("messages", messages);
-		model.addAttribute("appointments", appointments);
-		model.addAttribute("recommendations", recommendations);
-		model.addAttribute("messageCount", messages.size());
-		model.addAttribute("appointmentCount", appointments.size());
-		model.addAttribute("recommendationCount", recommendations.size());
+	private <T> Page<T> fetchPage(int requestedPage, Function<Pageable, Page<T>> fetch) {
+		Page<T> result = fetch.apply(PageRequest.of(Math.max(0, Math.min(requestedPage, 10_000)), PAGE_SIZE));
+		if (result.getTotalPages() > 0 && result.getNumber() >= result.getTotalPages()) {
+			return fetch.apply(PageRequest.of(result.getTotalPages() - 1, PAGE_SIZE));
+		}
+		return result;
+	}
+
+	private void addPage(Model model, Page<?> result, String collection, String path) {
+		model.addAttribute(collection, result.getContent());
+		model.addAttribute("pageData", result);
+		model.addAttribute("pageBasePath", path);
+	}
+
+	private void addCommunicationCounts(Model model, boolean admin) {
+		model.addAttribute("messageCount", admin ? messageService.countAll() : messageService.countMine());
+		model.addAttribute("appointmentCount", admin ? appointmentService.countAll() : appointmentService.countMine());
+		model.addAttribute("recommendationCount", admin ? recommendationService.countAll() : recommendationService.countMine());
 	}
 }

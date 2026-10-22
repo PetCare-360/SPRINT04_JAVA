@@ -18,14 +18,19 @@ public class VetWebController {
 	public String pets(Model model) { views.addVetData(model); return "vet/pets"; }
 
 	@GetMapping("/vet/mensagens")
-	public String messages(Model model) { views.addVetData(model); return "vet/mensagens"; }
+	public String messages(@RequestParam(defaultValue = "0") int page, Model model) {
+		views.addVetData(model); views.addMessagesPage(model, page, "vet"); return "vet/mensagens";
+	}
 
 	@GetMapping("/vet/consultas")
-	public String appointments(@RequestParam(required = false) String status, Model model) {
-		views.addVetData(model); views.applyAppointmentFilter(status, model);
-		model.addAttribute("selectedStatus", status); return "vet/consultas";
+	public String appointments(@RequestParam(required = false) String status,
+			@RequestParam(defaultValue = "0") int page, Model model) {
+		views.addVetData(model); views.addAppointmentsPage(model, page, "vet", status);
+		return "vet/consultas";
 	}
 
 	@GetMapping("/vet/recomendacoes")
-	public String recommendations(Model model) { views.addVetData(model); return "vet/recomendacoes"; }
+	public String recommendations(@RequestParam(defaultValue = "0") int page, Model model) {
+		views.addVetData(model); views.addRecommendationsPage(model, page, "vet"); return "vet/recomendacoes";
+	}
 }

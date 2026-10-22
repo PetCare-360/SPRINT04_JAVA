@@ -1,6 +1,7 @@
 package br.com.fiap.petcare360_java;
 
 import java.time.OffsetDateTime;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Locale;
@@ -19,6 +20,7 @@ import org.thymeleaf.spring6.view.ThymeleafViewResolver;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
 import br.com.fiap.petcare360_java.model.*;
+import br.com.fiap.petcare360_java.service.HealthTrendService;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -59,6 +61,8 @@ class WebTemplatesTest {
             }
             if (page.equals("pet-detail")) {
                 assertTrue(html.contains("Pet details"));
+                if (role.equals("admin")) assertFalse(html.contains("class=\"health-trends\""));
+                else assertTrue(html.contains("class=\"health-trends\""));
             }
         }
     }
@@ -93,11 +97,17 @@ class WebTemplatesTest {
             var link = new PetVeterinarian();
             link.setPet(pet);
             link.setVeterinarian(vet);
+            var reading = new SensorData();
+            reading.setTimestamp(OffsetDateTime.now());
+            reading.setTemperature(new BigDecimal("38.5"));
+            reading.setHeartRate(120);
+            var trend = new HealthTrendService().from(List.of(reading), List.of());
             var view = new ModelAndView(page);
             view.addAllObjects(Map.of("isTutor", role.equals("tutor"), "isVet", role.equals("vet"),
                     "isAdmin", role.equals("admin"), "pet", pet, "appointment", appointment,
                     "links", List.of(link), "linkedVeterinarians", List.of(link),
-                    "readings", List.of(), "alerts", List.of()));
+                    "readings", List.of(reading), "alerts", List.of(), "healthTrend", trend));
+            view.addObject("latestReading", reading);
             view.addObject("consultationPet", pet);
             view.addObject("canEditPet", true);
             view.addObject("scheduledAtValue", "2026-09-11T10:00");

@@ -37,14 +37,19 @@ public class AdminWebController {
 	public String links(Model model) { views.addAdminData(model); return "admin/vinculos"; }
 
 	@GetMapping("/admin/mensagens")
-	public String messages(Model model) { views.addAdminData(model); return "admin/mensagens"; }
+	public String messages(@RequestParam(defaultValue = "0") int page, Model model) {
+		views.addAdminData(model); views.addMessagesPage(model, page, "admin"); return "admin/mensagens";
+	}
 
 	@GetMapping("/admin/consultas")
-	public String appointments(@RequestParam(required = false) String status, Model model) {
-		views.addAdminData(model); views.applyAppointmentFilter(status, model);
-		model.addAttribute("selectedStatus", status); return "admin/consultas";
+	public String appointments(@RequestParam(required = false) String status,
+			@RequestParam(defaultValue = "0") int page, Model model) {
+		views.addAdminData(model); views.addAppointmentsPage(model, page, "admin", status);
+		return "admin/consultas";
 	}
 
 	@GetMapping("/admin/recomendacoes")
-	public String recommendations(Model model) { views.addAdminData(model); return "admin/recomendacoes"; }
+	public String recommendations(@RequestParam(defaultValue = "0") int page, Model model) {
+		views.addAdminData(model); views.addRecommendationsPage(model, page, "admin"); return "admin/recomendacoes";
+	}
 }

@@ -1,6 +1,8 @@
 package br.com.fiap.petcare360_java.service;
 
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import org.springframework.stereotype.Service;
 import org.springframework.context.ApplicationEventPublisher;
@@ -32,6 +34,26 @@ public class MessageService {
 		this.clinicalAccessService = clinicalAccessService;
 		this.events = events;
 		this.procedures = procedures;
+	}
+
+	@Transactional(readOnly = true)
+	public Page<MessageResponse> pageMine(Pageable pageable) {
+		return messageRepository.pageVisibleForUser(currentUserService.email(), pageable).map(this::toResponse);
+	}
+
+	@Transactional(readOnly = true)
+	public Page<MessageResponse> pageAll(Pageable pageable) {
+		return messageRepository.pageAllVisible(pageable).map(this::toResponse);
+	}
+
+	@Transactional(readOnly = true)
+	public long countMine() {
+		return messageRepository.countVisibleForUser(currentUserService.email());
+	}
+
+	@Transactional(readOnly = true)
+	public long countAll() {
+		return messageRepository.count();
 	}
 
 	@Transactional(readOnly = true)

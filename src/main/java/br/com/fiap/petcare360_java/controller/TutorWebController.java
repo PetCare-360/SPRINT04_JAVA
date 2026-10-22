@@ -24,14 +24,19 @@ public class TutorWebController {
 	public String veterinarians(Model model) { views.addTutorData(model); return "tutor/veterinarios"; }
 
 	@GetMapping("/tutor/mensagens")
-	public String messages(Model model) { views.addTutorData(model); return "tutor/mensagens"; }
+	public String messages(@RequestParam(defaultValue = "0") int page, Model model) {
+		views.addTutorData(model); views.addMessagesPage(model, page, "tutor"); return "tutor/mensagens";
+	}
 
 	@GetMapping("/tutor/consultas")
-	public String appointments(@RequestParam(required = false) String status, Model model) {
-		views.addTutorData(model); views.applyAppointmentFilter(status, model);
-		model.addAttribute("selectedStatus", status); return "tutor/consultas";
+	public String appointments(@RequestParam(required = false) String status,
+			@RequestParam(defaultValue = "0") int page, Model model) {
+		views.addTutorData(model); views.addAppointmentsPage(model, page, "tutor", status);
+		return "tutor/consultas";
 	}
 
 	@GetMapping("/tutor/recomendacoes")
-	public String recommendations(Model model) { views.addTutorData(model); return "tutor/recomendacoes"; }
+	public String recommendations(@RequestParam(defaultValue = "0") int page, Model model) {
+		views.addTutorData(model); views.addRecommendationsPage(model, page, "tutor"); return "tutor/recomendacoes";
+	}
 }

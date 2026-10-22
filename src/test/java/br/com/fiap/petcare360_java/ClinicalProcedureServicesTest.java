@@ -20,6 +20,7 @@ import br.com.fiap.petcare360_java.model.AppUser;
 import br.com.fiap.petcare360_java.model.Pet;
 import br.com.fiap.petcare360_java.model.RecommendationPriorityEnum;
 import br.com.fiap.petcare360_java.repository.AppointmentRepository;
+import br.com.fiap.petcare360_java.repository.AppUserRepository;
 import br.com.fiap.petcare360_java.repository.CareRecommendationRepository;
 import br.com.fiap.petcare360_java.repository.OracleClinicalProcedures;
 import br.com.fiap.petcare360_java.repository.PetMessageRepository;
@@ -77,7 +78,9 @@ class ClinicalProcedureServicesTest {
 		when(access.userById(2L)).thenReturn(vet);
 		when(links.existsActiveLink(10L, "vet@example.com")).thenReturn(true);
 		AppointmentRepository repository = mock(AppointmentRepository.class);
-		AppointmentService service = new AppointmentService(repository, currentUser, access, links, procedures);
+		AppUserRepository users = mock(AppUserRepository.class);
+		when(users.lockForScheduling(2L)).thenReturn(java.util.Optional.of(vet));
+		AppointmentService service = new AppointmentService(repository, users, currentUser, access, links, procedures);
 		OffsetDateTime date = OffsetDateTime.now().plusDays(2);
 
 		service.request(new AppointmentRequest(10L, 2L, date, " Consulta "));

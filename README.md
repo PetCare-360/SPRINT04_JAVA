@@ -41,6 +41,9 @@ Novas mudanças de estrutura devem ser acrescentadas ao projeto Java como arquiv
 4. Consulte as leituras e os alertas; o tutor ou veterinário vinculado pode mudar o status de um alerta por `PKG_PETCARE360_CLINICO.PRC_ATUALIZAR_ALERTA`, que também grava o histórico.
 5. Troque mensagens, solicite consultas e registre recomendações. Esses cadastros chamam, respectivamente, `PRC_ENVIAR_MENSAGEM`, `PRC_AGENDAR_CONSULTA` e `PRC_CRIAR_RECOMENDACAO` da mesma package. Recomendações são criadas por veterinários vinculados.
 6. O veterinário responsável ou administrador confirma uma consulta solicitada e conclui uma consulta confirmada. Tutor, veterinário responsável ou administrador pode cancelá-la enquanto estiver solicitada ou confirmada. O cancelamento preserva o registro em `TB_APPOINTMENT` com status `CANCELED`.
+7. Ao solicitar, remarcar ou confirmar uma consulta, a aplicação reserva o minuto escolhido para o veterinário e recusa outro agendamento ativo nesse mesmo minuto. Consultas canceladas ou concluídas não ocupam o horário.
+8. As telas de consultas, mensagens e recomendações exibem 10 registros por página para tutores e veterinários; o administrador também tem paginação. O filtro de status das consultas é aplicado antes da paginação.
+9. Em **Pets → Detalhes**, tutores e veterinários vinculados veem gráficos das 30 leituras mais recentes de temperatura e batimentos, com os alertas do período marcados. A tabela de leituras permanece visível. O administrador continua com a tabela e os demais detalhes do pet.
 
 Os endpoints REST de criação de mensagem, consulta e recomendação retornam `201 Created` sem corpo. As procedures atuais não devolvem o ID gerado; consulte os endpoints `GET` ou atualize a página para ver o novo registro.
 

@@ -69,5 +69,18 @@
 		<a th:href="@{/admin/recomendacoes}" th:text="#{nav.recommendations}">Recomendações</a>
 		<hr>
 	</nav>
+
+	<nav th:fragment="pager" class="pagination" th:if="${pageData != null and pageData.totalPages > 0}"
+			th:attr="aria-label=#{ui.paginacao.navegacao}">
+		<a th:if="${pageData.hasPrevious()}"
+			th:href="@{${pageBasePath}(page=${pageData.number - 1},status=${selectedStatus})}"
+			th:text="#{ui.paginacao.anterior}">Anterior</a>
+		<span><span th:text="#{ui.paginacao.pagina}">Página</span>
+			<strong th:text="${pageData.number + 1}">1</strong> /
+			<span th:text="${pageData.totalPages}">1</span></span>
+		<a th:if="${pageData.hasNext()}"
+			th:href="@{${pageBasePath}(page=${pageData.number + 1},status=${selectedStatus})}"
+			th:text="#{ui.paginacao.proxima}">Próxima</a>
+	</nav>
 </body>
 </html>

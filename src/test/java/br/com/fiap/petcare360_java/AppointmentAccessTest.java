@@ -2,7 +2,10 @@ package br.com.fiap.petcare360_java;
 
 import java.util.Optional;
 import java.time.OffsetDateTime;
+import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import br.com.fiap.petcare360_java.model.*;
 import br.com.fiap.petcare360_java.repository.*;
 import br.com.fiap.petcare360_java.service.*;
@@ -12,8 +15,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class AppointmentAccessTest {
     private final AppointmentRepository repository = mock(AppointmentRepository.class);
+    private final AppUserRepository users = mock(AppUserRepository.class);
     private final CurrentUserService currentUser = mock(CurrentUserService.class);
-    private final AppointmentService service = new AppointmentService(repository, currentUser,
+    private final AppointmentService service = new AppointmentService(repository, users, currentUser,
             mock(ClinicalAccessService.class), mock(PetVeterinarianRepository.class),
             mock(OracleClinicalProcedures.class));
 
@@ -38,6 +42,7 @@ class AppointmentAccessTest {
         appointment.setReason("Consulta");
         when(repository.findVisibleById(10L)).thenReturn(Optional.of(appointment));
         when(repository.save(appointment)).thenReturn(appointment);
+        when(users.lockForScheduling(2L)).thenReturn(Optional.of(vet));
         return appointment;
     }
 
@@ -89,5 +94,21 @@ class AppointmentAccessTest {
     void tutorCannotConfirmAppointment() {
         fixture(1L);
         assertThrows(ApiException.class, () -> service.confirm(10L));
+    }
+
+    @Test
+    void statusFilterIsAppliedByRepositoryBeforePaging() {
+        var appointment = fixture(1L);
+        appointment.setStatus(AppointmentStatusEnum.CONFIRMED);
+        var pageable = PageRequest.of(0, 10);
+        when(currentUser.email()).thenReturn("tutor@example.com");
+        when(repository.pageVisibleForUserByStatus("tutor@example.com", AppointmentStatusEnum.CONFIRMED, pageable))
+                .thenReturn(new PageImpl<>(List.of(appointment), pageable, 1));
+
+        var page = service.pageMine(pageable, AppointmentStatusEnum.CONFIRMED);
+
+        assertEquals(1, page.getTotalElements());
+        assertEquals(AppointmentStatusEnum.CONFIRMED, page.getContent().getFirst().status());
+        verify(repository, never()).findVisibleForUser(anyString());
     }
 }

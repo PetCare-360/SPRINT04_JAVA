@@ -1,6 +1,8 @@
 package br.com.fiap.petcare360_java.service;
 
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -33,6 +35,26 @@ public class RecommendationService {
 		this.clinicalAccessService = clinicalAccessService;
 		this.petVeterinarianRepository = petVeterinarianRepository;
 		this.procedures = procedures;
+	}
+
+	@Transactional(readOnly = true)
+	public Page<RecommendationResponse> pageMine(Pageable pageable) {
+		return recommendationRepository.pageVisibleForUser(currentUserService.email(), pageable).map(this::toResponse);
+	}
+
+	@Transactional(readOnly = true)
+	public Page<RecommendationResponse> pageAll(Pageable pageable) {
+		return recommendationRepository.pageAllVisible(pageable).map(this::toResponse);
+	}
+
+	@Transactional(readOnly = true)
+	public long countMine() {
+		return recommendationRepository.countVisibleForUser(currentUserService.email());
+	}
+
+	@Transactional(readOnly = true)
+	public long countAll() {
+		return recommendationRepository.count();
 	}
 
 	@Transactional(readOnly = true)
