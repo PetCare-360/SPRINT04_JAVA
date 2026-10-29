@@ -16,6 +16,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -59,6 +60,19 @@ public class GlobalExceptionHandler {
 		}
 		log.error("Falha de persistência em {}", request.getRequestURI(), ex);
 		return build(HttpStatus.INTERNAL_SERVER_ERROR, message("error.database"), request, null);
+	}
+
+	@ExceptionHandler(NoResourceFoundException.class)
+	public ResponseEntity<?> handleNoResource(NoResourceFoundException ex, HttpServletRequest request) {
+		String requestPath = request.getRequestURI().substring(request.getContextPath().length());
+		boolean faviconRequest = "/favicon.ico".equals(requestPath)
+				&& ("GET".equals(request.getMethod()) || "HEAD".equals(request.getMethod()));
+
+		if (faviconRequest) {
+			return ResponseEntity.noContent().build();
+		}
+
+		return handleUnexpected(ex, request);
 	}
 
 	@ExceptionHandler(Exception.class)
