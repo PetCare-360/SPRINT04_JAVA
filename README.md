@@ -2,6 +2,23 @@
 
 Aplicação web MVC e API REST para cadastro de pets, monitoramento de coleiras e atendimento entre tutores e veterinários. Usa o mesmo esquema Oracle `TB_*` da entrega Sprint 04 de Banco de Dados.
 
+## Deploy, banco de dados e demonstração
+
+- **Aplicação publicada:** [PetCare360 Java no Render](https://sprint04-java.onrender.com/login)
+- **Projeto do banco de dados:** [SPRINT04_DB no GitHub](https://github.com/PetCare-360/SPRINT04_DB.git)
+- **Vídeo demonstrativo:** [Assistir no YouTube](https://youtu.be/p_D-Z6CKiRc)
+
+A aplicação Java está integrada ao banco Oracle da Sprint 04: utiliza as tabelas `TB_*`, as packages e a trigger descritas no projeto de banco de dados. O deploy no Render usa as credenciais e a URL Oracle configuradas nas variáveis de ambiente do serviço.
+
+## Integrantes
+
+| Integrante | RM |
+| --- | ---: |
+| Leonardo Zerbinatti de Sales | 562992 |
+| Luis Guilherme Borges Silva | 566548 |
+| Rafael de Freitas Moraes | 563210 |
+| Rafael Pascotte Mercadante | 564928 |
+
 ## Tecnologias
 
 Java 21, Spring Boot 4, Spring MVC, Thymeleaf, Spring Data JPA, Spring Security, Bean Validation, Oracle Database, Flyway, Spring Events, Micrometer/Actuator e Maven.
@@ -87,12 +104,3 @@ Em um esquema de teste já preparado, entre na aplicação com tutor e veteriná
 5. Envie uma leitura pela API IoT. Confira `TB_SENSOR_DATA` e `TB_AUDITORIA_SENSOR`.
 6. Tente enviar recomendação como administrador sem vínculo e alterar alerta de outro tutor; essas ações devem ser recusadas. Um veterinário vinculado pode editar e desativar o pet, mas outro veterinário não.
 7. Solicite, confirme, conclua e cancele consultas pela interface. Confira os status em `TB_APPOINTMENT` e confirme que o cancelamento não remove linhas. Em caso de falha no formulário, a interface deve mostrar uma página de erro legível.
-
-## Integrantes
-
-| Integrante | RM |
-| --- | ---: |
-| Leonardo Zerbinatti de Sales | 562992 |
-| Luis Guilherme Borges Silva | 566548 |
-| Rafael de Freitas Moraes | 563210 |
-| Rafael Pascotte Mercadante | 564928 |
